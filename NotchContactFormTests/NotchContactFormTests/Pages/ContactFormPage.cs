@@ -82,7 +82,7 @@ namespace NotchContactFormTests.Pages
 
 
         public string GetSuccessMessageText() =>
-            GetText(SuccessMessage, timeoutSeconds: ConfigReader.PageLoadTimeoutSeconds);
+    GetText(SuccessMessage, timeoutSeconds: ConfigReader.PageLoadTimeoutSeconds);
 
         public string GetValidationErrorText(string fieldName)
         {
