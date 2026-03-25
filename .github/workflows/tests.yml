@@ -1,0 +1,53 @@
+name: Selenium Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install Google Chrome
+        run: |
+          sudo wget -q -O /etc/apt/trusted.gpg.d/google-chrome.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+          echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/google-chrome.asc] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update -q
+          sudo apt-get install -y google-chrome-stable
+
+      - name: Restore dependencies
+        run: dotnet restore NotchContactFormTests/NotchContactFormTests/NotchContactFormTests.csproj
+
+      - name: Build
+        run: dotnet build NotchContactFormTests/NotchContactFormTests/NotchContactFormTests.csproj --no-restore
+
+      - name: Enable headless mode for CI
+        run: |
+          sed -i 's/"Headless": false/"Headless": true/' NotchContactFormTests/NotchContactFormTests/appsettings.json
+
+      - name: Run tests (excluding intentional fail)
+        run: dotnet test NotchContactFormTests/NotchContactFormTests/NotchContactFormTests.csproj --no-build --filter "Category!=intentional-fail"
+
+      - name: Run intentional fail test (expected to fail)
+        run: dotnet test NotchContactFormTests/NotchContactFormTests/NotchContactFormTests.csproj --no-build --filter "Category=intentional-fail"
+        continue-on-error: true
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-reports
+          path: NotchContactFormTests/NotchContactFormTests/bin/Debug/net8.0/Reports/

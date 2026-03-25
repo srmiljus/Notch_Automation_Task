@@ -2,7 +2,7 @@
 
 Automated test suite for the [Notch QA Task contact form](https://wearenotch.com/qa_task/).
 
-**Stack:** C# · Selenium WebDriver · Reqnroll (BDD) · NUnit · ExtentReports · BoDi
+**Stack:** C# · Selenium WebDriver · Reqnroll (BDD) · NUnit · ExtentReports · Bogus
 
 ---
 
@@ -10,28 +10,33 @@ Automated test suite for the [Notch QA Task contact form](https://wearenotch.com
 
 ```
 NotchContactFormTests/
-├── Config/
-│   └── ConfigReader.cs          # Reads appsettings.json into typed TestSettings
-├── Drivers/
-│   ├── DriverContext.cs         # BoDi-managed WebDriver lifecycle wrapper
-│   └── WebDriverFactory.cs      # Creates ChromeDriver with configured options
-├── Features/
-│   └── ContactForm.feature      # All Gherkin scenarios
-├── Helpers/
-│   ├── ExtentReportHelper.cs    # Singleton Extent Reports wrapper
-│   ├── ScreenshotHelper.cs      # Screenshot capture (file + base64)
-│   └── WaitHelper.cs            # Explicit wait helpers (ExpectedConditions)
-├── Models/
-│   └── ContactFormData.cs       # Form data model with factory methods
-├── Pages/
-│   └── ContactFormPage.cs       # Page Object Model for the contact form
-├── StepDefinitions/
-│   ├── ContactFormSteps.cs      # Reqnroll step bindings
-│   └── Hooks.cs                 # BeforeScenario / AfterScenario / AfterStep hooks
-├── Reports/                     # Generated HTML reports (git-ignored)
-├── Screenshots/                 # Captured screenshots (git-ignored)
-├── appsettings.json             # Test configuration
-└── reqnroll.json                # Reqnroll framework configuration
+└── NotchContactFormTests/
+    ├── Config/
+    │   ├── AssemblyInfo.cs          # Assembly-level test configuration
+    │   └── ConfigReader.cs          # Reads appsettings.json into typed Settings
+    ├── Drivers/
+    │   ├── DriverContext.cs         # WebDriver lifecycle wrapper
+    │   └── WebDriverFactory.cs      # Creates ChromeDriver with configured options
+    ├── Features/
+    │   └── ContactForm.feature      # All Gherkin scenarios
+    ├── Helpers/
+    │   ├── ExtentReportHelper.cs    # Singleton Extent Reports wrapper
+    │   ├── ScreenshotHelper.cs      # Screenshot capture (file + base64)
+    │   └── WaitHelper.cs            # Explicit wait helpers (ExpectedConditions)
+    ├── Hooks/
+    │   └── Hooks.cs                 # BeforeScenario / AfterScenario / AfterStep hooks
+    ├── Pages/
+    │   ├── BasePage.cs              # Base page with shared actions and waits
+    │   └── ContactFormPage.cs       # Page Object Model for the contact form
+    ├── StepDefinitions/
+    │   └── ContactFormSteps.cs      # Reqnroll step bindings
+    ├── TestData/
+    │   └── test-document.pdf        # Sample file used for upload test scenarios
+    ├── Reports/                     # Generated HTML reports (git-ignored)
+    ├── Screenshots/                 # Captured screenshots (git-ignored)
+    ├── appsettings.json             # Test configuration
+    ├── NotchContactFormTests.csproj
+    └── NotchContactFormTests.sln
 ```
 
 ---
@@ -44,9 +49,8 @@ NotchContactFormTests/
 | Google Chrome | Latest stable | Must match ChromeDriver version |
 | Git | Any | For cloning the repo |
 
-> **ChromeDriver version**: The project references `Selenium.WebDriver.ChromeDriver` via NuGet.  
-> The package version must match your installed Chrome. Update the version in the `.csproj` if needed.  
-> Check your Chrome version at `chrome://settings/help`.
+> **ChromeDriver**: The project uses `Selenium.WebDriver` via NuGet which manages ChromeDriver automatically.  
+> Check your Chrome version at `chrome://settings/help` if there are any compatibility issues.
 
 ---
 
@@ -56,13 +60,13 @@ NotchContactFormTests/
 
 ```bash
 git clone <repository-url>
-cd NotchContactFormTests
+cd NotchContactFormTests/NotchContactFormTests
 ```
 
 ### 2. Restore NuGet packages
 
 ```bash
-dotnet restore NotchContactFormTests/NotchContactFormTests.csproj
+dotnet restore NotchContactFormTests.csproj
 ```
 
 ### 3. Configure settings
@@ -71,13 +75,15 @@ Edit `appsettings.json` to match your environment:
 
 ```json
 {
-  "TestSettings": {
+  "Settings": {
     "BaseUrl": "https://wearenotch.com/qa_task/",
     "Browser": "Chrome",
     "Headless": false,
-    "ImplicitWaitSeconds": 10,
-    "ExplicitWaitSeconds": 15,
-    "PageLoadTimeoutSeconds": 30
+    "DefaultTimeoutSeconds": 15,
+    "PageLoadTimeoutSeconds": 30,
+    "ScreenshotsFolder": "Screenshots",
+    "ReportsFolder": "Reports",
+    "ReportFileName": "NotchContactFormReport"
   }
 }
 ```
@@ -87,13 +93,13 @@ Set `"Headless": true` to run without a visible browser window (useful for CI).
 ### 4. Build the project
 
 ```bash
-dotnet build NotchContactFormTests/NotchContactFormTests.csproj
+dotnet build NotchContactFormTests.csproj
 ```
 
 ### 5. Run all tests
 
 ```bash
-dotnet test NotchContactFormTests/NotchContactFormTests.csproj
+dotnet test NotchContactFormTests.csproj
 ```
 
 ---
@@ -106,14 +112,14 @@ Reqnroll tags are used to filter scenarios. Use the `--filter` flag with NUnit c
 # Smoke tests only
 dotnet test --filter "Category=smoke"
 
+# All regression tests
+dotnet test --filter "Category=regression"
+
 # All happy path tests
 dotnet test --filter "Category=happy-path"
 
 # All validation tests
 dotnet test --filter "Category=validation"
-
-# UI visibility tests
-dotnet test --filter "Category=ui"
 
 # Skip the intentional fail test
 dotnet test --filter "Category!=intentional-fail"
@@ -142,7 +148,7 @@ Open it in any browser. The report includes:
 
 ## Screenshots
 
-Screenshots are saved in the `Screenshots/` folder alongside the report:
+Screenshots are saved in the `Screenshots/` folder:
 
 ```
 NotchContactFormTests/bin/Debug/net8.0/Screenshots/
@@ -158,10 +164,10 @@ A screenshot is captured:
 
 | Tag | Count | Description |
 |-----|-------|-------------|
-| `@smoke` | 2 | Critical path — quick sanity check |
-| `@happy-path` | 12 | Successful form submissions |
-| `@validation` | 13 | Required field and format validation |
-| `@ui` | 3 | Element visibility and page load |
+| `@smoke` | 1 | Critical path — quick sanity check |
+| `@regression` | 17 | Full regression suite |
+| `@happy-path` | 3 + 11 outlines | Successful form submissions |
+| `@validation` | 9 + 4 outlines | Required field and format validation |
 | `@intentional-fail` | 1 | Deliberately failing — for demo purposes |
 
 ### Intentionally Failing Test
@@ -190,7 +196,7 @@ The form uses **Gravity Forms** (WordPress), so field `name` attributes follow t
 |------|--------|-------|
 | Live site dependency | High | Tests run against production; the form could be down or changed |
 | Real form submissions | Medium | Each happy-path test submits a real contact request to Notch |
-| ChromeDriver version mismatch | High | Must match installed Chrome version — update NuGet package if needed |
+| ChromeDriver compatibility | Low | Managed automatically via `Selenium.WebDriver` NuGet package |
 | Cookie consent banner | Low | Hooks attempt to dismiss it automatically; may need updating |
 | Rate limiting / CAPTCHA | Medium | If Notch adds CAPTCHA, happy-path tests will fail |
 | Flaky locators | Medium | Gravity Forms generates `input_N` names — stable unless form is rebuilt |
@@ -212,12 +218,6 @@ Based on testing observations:
 
 ## CI/CD Integration
 
-To run in a CI pipeline (e.g. GitHub Actions), set `Headless: true` in `appsettings.json` or override via environment:
+A GitHub Actions workflow is included at `.github/workflows/tests.yml`. It runs on every push and pull request to `main`, installs Chrome, enables headless mode, and uploads the generated HTML report as a build artifact.
 
-```yaml
-# .github/workflows/tests.yml
-- name: Run Selenium Tests
-  run: dotnet test NotchContactFormTests/NotchContactFormTests.csproj --filter "Category!=intentional-fail"
-```
-
-For the intentional fail test, run it separately and mark it as `continue-on-error: true`.
+To run in any CI pipeline, set `"Headless": true` in `appsettings.json`. The intentional-fail test is run separately with `continue-on-error: true` so it does not block the build.
