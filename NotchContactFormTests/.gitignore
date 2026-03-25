@@ -1,0 +1,21 @@
+# Build output
+bin/
+obj/
+
+# Reports and screenshots (generated at runtime)
+**/Reports/
+**/Screenshots/
+
+# VS / Rider
+.vs/
+.idea/
+*.user
+*.suo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# NuGet
+*.nupkg
+packages/
