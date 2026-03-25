@@ -54,6 +54,8 @@ jobs:
 
       - name: Run tests (manual dispatch with tag filter)
         if: github.event_name == 'workflow_dispatch' && inputs.tag != 'all'
+        env:
+          BROWSER_HEADLESS: 'true'
         run: |
           dotnet test NotchContactFormTests/NotchContactFormTests/NotchContactFormTests.csproj \
             --no-build \
@@ -62,6 +64,8 @@ jobs:
 
       - name: Run all tests (manual dispatch - all tags)
         if: github.event_name == 'workflow_dispatch' && inputs.tag == 'all'
+        env:
+          BROWSER_HEADLESS: 'true'
         run: |
           dotnet test NotchContactFormTests/NotchContactFormTests/NotchContactFormTests.csproj \
             --no-build
@@ -69,6 +73,8 @@ jobs:
 
       - name: Run tests excluding intentional-fail (push/PR)
         if: github.event_name != 'workflow_dispatch'
+        env:
+          BROWSER_HEADLESS: 'true'
         run: |
           dotnet test NotchContactFormTests/NotchContactFormTests/NotchContactFormTests.csproj \
             --no-build \
@@ -76,6 +82,8 @@ jobs:
 
       - name: Run intentional-fail test (push/PR - expected to fail)
         if: github.event_name != 'workflow_dispatch'
+        env:
+          BROWSER_HEADLESS: 'true'
         run: |
           dotnet test NotchContactFormTests/NotchContactFormTests/NotchContactFormTests.csproj \
             --no-build \

@@ -1,4 +1,5 @@
 using OpenQA.Selenium;
+using NotchContactFormTests.Config;
 using NotchContactFormTests.Helpers;
 
 namespace NotchContactFormTests.Pages
@@ -81,7 +82,7 @@ namespace NotchContactFormTests.Pages
 
 
         public string GetSuccessMessageText() =>
-            GetText(SuccessMessage, timeoutSeconds: 20);
+            GetText(SuccessMessage, timeoutSeconds: ConfigReader.PageLoadTimeoutSeconds);
 
         public string GetValidationErrorText(string fieldName)
         {
