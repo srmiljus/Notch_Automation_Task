@@ -79,6 +79,14 @@ namespace NotchContactFormTests.Helpers
         public void LogSkip(string message)
             => _currentTest?.Skip(message);
 
+        public void LogKnownFailure(string message)
+            => _currentTest?.Warning($"[EXPECTED FAILURE] {message}");
+
+        public void MarkTestAsKnownFailure(string reason)
+        {
+            _currentTest?.Warning($"⚠️ [KNOWN / EXPECTED FAILURE] This test is intentionally failing to demonstrate failure reporting.\nReason: {reason}");
+        }
+
         public void AttachScreenshot(string base64Screenshot, string title = "Screenshot")
         {
             if (string.IsNullOrEmpty(base64Screenshot)) return;
