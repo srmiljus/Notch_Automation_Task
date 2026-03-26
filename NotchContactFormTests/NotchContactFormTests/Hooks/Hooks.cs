@@ -10,6 +10,8 @@ namespace NotchContactFormTests.Hooks
     [Binding]
     public class Hooks
     {
+        private const string IntentionalFailTag = "intentional-fail";
+
         private readonly IObjectContainer _container;
         private readonly ScenarioContext _scenarioContext;
         private DriverContext? _driverContext;
@@ -61,16 +63,25 @@ namespace NotchContactFormTests.Hooks
         {
             if (_scenarioContext.TestError != null)
             {
+                bool isKnownFailure = _scenarioContext.ScenarioInfo.Tags.Contains(IntentionalFailTag);
+
                 try
                 {
                     var screenshotHelper = _container.Resolve<ScreenshotHelper>();
+                    var screenshotLabel = isKnownFailure ? "EXPECTED FAIL" : "FAIL";
                     var base64 = screenshotHelper.CaptureScreenshotAsBase64(
-                        _scenarioContext.ScenarioInfo.Title, "FAIL");
+                        _scenarioContext.ScenarioInfo.Title, screenshotLabel);
 
                     if (!string.IsNullOrEmpty(base64))
-                        ExtentReportHelper.Instance.AttachScreenshot(base64, "Screenshot at failure");
+                        ExtentReportHelper.Instance.AttachScreenshot(base64, $"Screenshot at {screenshotLabel}");
                 }
-                catch { /*screenshot failure must not mask the original error */ }
+                catch { /* screenshot failure must not mask the original error */ }
+
+                if (isKnownFailure)
+                {
+                    ExtentReportHelper.Instance.MarkTestAsKnownFailure(
+                        "Assertion uses a deliberately incorrect expected value to demonstrate failure reporting in ExtentReports.");
+                }
             }
 
             _driverContext?.Dispose();
@@ -86,8 +97,18 @@ namespace NotchContactFormTests.Hooks
 
             if (stepStatus == ScenarioExecutionStatus.TestError)
             {
-                ExtentReportHelper.Instance.LogFail(
-                    $"Step FAILED: {stepText}\n{_scenarioContext.TestError?.Message}");
+                bool isKnownFailure = _scenarioContext.ScenarioInfo.Tags.Contains(IntentionalFailTag);
+
+                if (isKnownFailure)
+                {
+                    ExtentReportHelper.Instance.LogWarning(
+                        $"[EXPECTED FAILURE] Step: {stepText}\n{_scenarioContext.TestError?.Message}");
+                }
+                else
+                {
+                    ExtentReportHelper.Instance.LogFail(
+                        $"Step FAILED: {stepText}\n{_scenarioContext.TestError?.Message}");
+                }
             }
             else
             {

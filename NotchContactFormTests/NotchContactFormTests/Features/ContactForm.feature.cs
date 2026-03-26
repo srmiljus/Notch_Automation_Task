@@ -27,8 +27,8 @@ namespace NotchContactFormTests.Features
         
         private static string[] featureTags = ((string[])(null));
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Contact Form Submission", "  As a potential client\r\n  I want to fill out the contact form on the Notch websi" +
-                "te\r\n  So that I can get in touch with the Notch team about my project", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Contact Form Submission", "  As a potential client\n  I want to fill out the contact form on the Notch websit" +
+                "e\n  So that I can get in touch with the Notch team about my project", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
         
 #line 1 "ContactForm.feature"
 #line hidden
