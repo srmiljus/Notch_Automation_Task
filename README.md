@@ -219,4 +219,17 @@ Based on testing observations:
 
 A GitHub Actions workflow is included at `.github/workflows/tests.yml`. It runs on every push and pull request to `main`, installs Chrome, enables headless mode, and uploads the generated HTML report as a build artifact.
 
-To run in any CI pipeline, set `"Headless": true` in `appsettings.json`. The intentional-fail test is run separately with `continue-on-error: true` so it does not block the build.
+All tests including the intentional-fail scenario run in a single execution, producing one unified HTML report. The intentional-fail test will appear as failed in the report with a documented explanation — this is expected behavior, not a bug.
+
+### Manual trigger
+
+The workflow can also be triggered manually from the **Actions** tab on GitHub:
+
+1. Go to **Actions → Selenium Tests**
+2. Click **Run workflow**
+3. Select the branch and desired tag filter
+4. Click **Run workflow**
+
+Available tag filters: `all`, `smoke`, `regression`, `happy-path`, `referral-sources`, `budget-selection`, `validation`, `required-fields`, `email-format`, `intentional-fail`
+
+To run in any CI pipeline, set `"Headless": true` in `appsettings.json` or override via the `BROWSER_HEADLESS` environment variable.
