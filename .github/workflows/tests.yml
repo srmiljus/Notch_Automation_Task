@@ -63,45 +63,23 @@ jobs:
             --filter "Category=${{ inputs.tag }}"
         continue-on-error: ${{ inputs.tag == 'intentional-fail' }}
 
-      # Manual dispatch - all tags
-      - name: Run all tests except intentional-fail (manual dispatch - all)
+      # Manual dispatch - all tags (single run = single report)
+      - name: Run all tests (manual dispatch - all)
         if: github.event_name == 'workflow_dispatch' && inputs.tag == 'all'
         env:
           BROWSER_HEADLESS: 'true'
         run: |
           dotnet test NotchContactFormTests/NotchContactFormTests/NotchContactFormTests.csproj \
-            --no-build \
-            --filter "Category!=intentional-fail"
+            --no-build
 
-      - name: Run intentional-fail test (manual dispatch - all)
-        if: github.event_name == 'workflow_dispatch' && inputs.tag == 'all'
-        env:
-          BROWSER_HEADLESS: 'true'
-        run: |
-          dotnet test NotchContactFormTests/NotchContactFormTests/NotchContactFormTests.csproj \
-            --no-build \
-            --filter "Category=intentional-fail"
-        continue-on-error: true
-
-      # Push / PR trigger
-      - name: Run all tests except intentional-fail (push/PR)
+      # Push / PR trigger (single run = single report)
+      - name: Run all tests (push/PR)
         if: github.event_name != 'workflow_dispatch'
         env:
           BROWSER_HEADLESS: 'true'
         run: |
           dotnet test NotchContactFormTests/NotchContactFormTests/NotchContactFormTests.csproj \
-            --no-build \
-            --filter "Category!=intentional-fail"
-
-      - name: Run intentional-fail test (push/PR)
-        if: github.event_name != 'workflow_dispatch'
-        env:
-          BROWSER_HEADLESS: 'true'
-        run: |
-          dotnet test NotchContactFormTests/NotchContactFormTests/NotchContactFormTests.csproj \
-            --no-build \
-            --filter "Category=intentional-fail"
-        continue-on-error: true
+            --no-build
 
       - name: Upload test reports
         uses: actions/upload-artifact@v4
