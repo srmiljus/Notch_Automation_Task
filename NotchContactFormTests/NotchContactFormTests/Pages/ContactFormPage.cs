@@ -76,13 +76,16 @@ namespace NotchContactFormTests.Pages
                         timeoutSeconds: 30);
                     return;
                 }
-                catch { /* try next imput */ }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"File upload attempt failed: {ex.Message}");
+                }
             }
+            throw new InvalidOperationException($"Failed to upload file: {filePath}. No valid file input found.");
         }
 
-
         public string GetSuccessMessageText() =>
-    GetText(SuccessMessage, timeoutSeconds: ConfigReader.PageLoadTimeoutSeconds);
+            GetText(SuccessMessage, timeoutSeconds: ConfigReader.PageLoadTimeoutSeconds);
 
         public string GetValidationErrorText(string fieldName)
         {
@@ -103,7 +106,7 @@ namespace NotchContactFormTests.Pages
 
             return text;
         }
-    }
 
         #endregion
+    }
 }
