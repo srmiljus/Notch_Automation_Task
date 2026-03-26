@@ -70,10 +70,11 @@ namespace NotchContactFormTests.Pages
                     ((IJavaScriptExecutor)Driver).ExecuteScript(
                         "arguments[0].style.display='block'; arguments[0].style.visibility='visible';", input);
                     input.SendKeys(filePath);
-
                     Wait.WaitForCondition(
                         d => d.FindElement(FileUploadProgress).Text.Trim() == "100%",
                         timeoutSeconds: 30);
+
+                    Wait.WaitForElementNotVisible(FileUploadProgress, timeoutSeconds: 10);
                     return;
                 }
                 catch (Exception ex)
