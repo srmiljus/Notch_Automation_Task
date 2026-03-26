@@ -194,7 +194,6 @@ The form uses **Gravity Forms** (WordPress), so field `name` attributes follow t
 
 | Risk | Impact | Notes |
 |------|--------|-------|
-| Live site dependency | High | Tests run against production; the form could be down or changed |
 | Real form submissions | Medium | Each happy-path test submits a real contact request to Notch |
 | ChromeDriver compatibility | Low | Managed automatically via `Selenium.WebDriver` NuGet package |
 | Cookie consent banner | Low | Hooks attempt to dismiss it automatically; may need updating |
