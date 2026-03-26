@@ -3,6 +3,10 @@ using NotchContactFormTests.Config;
 
 namespace NotchContactFormTests.Helpers
 {
+    /// <summary>
+    /// Captures screenshots and saves them to disk as PNG files.
+    /// Also returns the screenshot as a base64 string for embedding in ExtentReports.
+    /// </summary>
     public class ScreenshotHelper
     {
         private readonly IWebDriver _driver;
@@ -15,6 +19,10 @@ namespace NotchContactFormTests.Helpers
             Directory.CreateDirectory(_screenshotsDir);
         }
 
+        /// <summary>
+        /// Captures a screenshot, saves it to disk, and returns it as a base64 string.
+        /// Returns an empty string if the capture fails (e.g., driver is unavailable).
+        /// </summary>
         public string CaptureScreenshotAsBase64(string scenarioTitle, string stepName = "")
         {
             try
@@ -38,6 +46,7 @@ namespace NotchContactFormTests.Helpers
             }
         }
 
+        // Replaces invalid filename characters with underscores and enforces an 80-char limit
         private static string SanitizeFileName(string input)
         {
             var invalid = Path.GetInvalidFileNameChars();

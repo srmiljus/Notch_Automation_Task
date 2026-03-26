@@ -6,6 +6,11 @@ using NotchContactFormTests.Config;
 
 namespace NotchContactFormTests.Drivers
 {
+    /// <summary>
+    /// Creates and configures WebDriver instances based on appsettings.json.
+    /// Supports Chrome, Edge, and Firefox. Browser and headless mode are configurable
+    /// without code changes — set via appsettings.json or environment variables.
+    /// </summary>
     public class WebDriverFactory
     {
         public static IWebDriver CreateDriver()
@@ -34,11 +39,14 @@ namespace NotchContactFormTests.Drivers
                 options.AddArgument("--start-maximized");
             }
 
+            // Required for stable execution in CI/Docker environments
             options.AddArgument("--no-sandbox");
             options.AddArgument("--disable-dev-shm-usage");
             options.AddArgument("--disable-gpu");
             options.AddArgument("--disable-notifications");
             options.AddArgument("--disable-popup-blocking");
+
+            // Suppress "Chrome is being controlled by automated software" banner
             options.AddExcludedArgument("enable-automation");
             options.AddAdditionalOption("useAutomationExtension", false);
 
@@ -61,6 +69,7 @@ namespace NotchContactFormTests.Drivers
                 options.AddArgument("--start-maximized");
             }
 
+            // Same CI stability flags as Chrome (Edge is Chromium-based)
             options.AddArgument("--no-sandbox");
             options.AddArgument("--disable-dev-shm-usage");
             options.AddArgument("--disable-gpu");
@@ -97,6 +106,7 @@ namespace NotchContactFormTests.Drivers
             return driver;
         }
 
+        // Only page load timeout is set here — element waits are handled via explicit waits in WaitHelper
         private static void ApplyTimeouts(IWebDriver driver)
         {
             driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(ConfigReader.PageLoadTimeoutSeconds);

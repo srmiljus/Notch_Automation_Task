@@ -2,10 +2,15 @@ using OpenQA.Selenium;
 
 namespace NotchContactFormTests.Drivers
 {
+    /// <summary>
+    /// Manages the lifecycle of a single WebDriver instance per scenario.
+    /// Registered as a Reqnroll dependency so each scenario gets its own isolated driver.
+    /// </summary>
     public class DriverContext : IDisposable
     {
         private IWebDriver? _driver;
 
+        // Lazy initialization — driver is created only when first accessed
         public IWebDriver Driver
         {
             get
@@ -24,7 +29,7 @@ namespace NotchContactFormTests.Drivers
             }
             catch
             {
-
+                // Suppress driver shutdown errors to avoid masking test failures
             }
             finally
             {

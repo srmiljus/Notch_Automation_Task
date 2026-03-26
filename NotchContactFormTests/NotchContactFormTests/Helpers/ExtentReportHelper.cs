@@ -5,6 +5,10 @@ using NotchContactFormTests.Config;
 
 namespace NotchContactFormTests.Helpers
 {
+    /// <summary>
+    /// Thread-safe singleton that manages the ExtentReports HTML report lifecycle.
+    /// Call InitializeReport() once before the test run and FlushReport() once after.
+    /// </summary>
     public sealed class ExtentReportHelper
     {
         private static ExtentReportHelper? _instance;
@@ -13,9 +17,11 @@ namespace NotchContactFormTests.Helpers
         private ExtentReports _extent = null!;
         private string _reportPath = string.Empty;
 
+        // [ThreadStatic] ensures each thread (parallel scenario) tracks its own current test node
         [ThreadStatic]
         private static ExtentTest? _currentTest;
 
+        // Double-checked locking for thread-safe lazy initialization
         public static ExtentReportHelper Instance
         {
             get
@@ -35,6 +41,7 @@ namespace NotchContactFormTests.Helpers
             var reportsDir = ConfigReader.ReportsPath;
             Directory.CreateDirectory(reportsDir);
 
+            // Timestamp in filename prevents overwriting previous runs
             var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
             var reportFileName = $"{ConfigReader.ReportFileName}_{timestamp}.html";
             _reportPath = Path.Combine(reportsDir, reportFileName);
@@ -64,28 +71,18 @@ namespace NotchContactFormTests.Helpers
 
         public ExtentTest? GetCurrentTest() => _currentTest;
 
-        public void LogInfo(string message)
-            => _currentTest?.Info(message);
-
-        public void LogPass(string message)
-            => _currentTest?.Pass(message);
-
-        public void LogFail(string message)
-            => _currentTest?.Fail(message);
-
-        public void LogWarning(string message)
-            => _currentTest?.Warning(message);
-
-        public void LogSkip(string message)
-            => _currentTest?.Skip(message);
+        // Logging methods delegate to the current test node — safe to call even if test is null
+        public void LogInfo(string message) => _currentTest?.Info(message);
+        public void LogPass(string message) => _currentTest?.Pass(message);
+        public void LogFail(string message) => _currentTest?.Fail(message);
+        public void LogWarning(string message) => _currentTest?.Warning(message);
+        public void LogSkip(string message) => _currentTest?.Skip(message);
 
         public void LogKnownFailure(string message)
             => _currentTest?.Warning($"[EXPECTED FAILURE] {message}");
 
         public void MarkTestAsKnownFailure(string reason)
-        {
-            _currentTest?.Warning($"⚠️ [KNOWN / EXPECTED FAILURE] This test is intentionally failing to demonstrate failure reporting.\nReason: {reason}");
-        }
+            => _currentTest?.Warning($"⚠️ [KNOWN / EXPECTED FAILURE] This test is intentionally failing to demonstrate failure reporting.\nReason: {reason}");
 
         public void AttachScreenshot(string base64Screenshot, string title = "Screenshot")
         {
@@ -93,12 +90,13 @@ namespace NotchContactFormTests.Helpers
             _currentTest?.AddScreenCaptureFromBase64String(base64Screenshot, title);
         }
 
+        /// <summary>
+        /// Writes the report to disk. Must be called after all tests complete (e.g., in [AfterTestRun] hook).
+        /// </summary>
         public void FlushReport()
         {
             _extent?.Flush();
             Console.WriteLine($"[Report] Flushed to: {_reportPath}");
         }
-
-
     }
 }

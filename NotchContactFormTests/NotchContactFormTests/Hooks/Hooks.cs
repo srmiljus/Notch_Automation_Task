@@ -10,6 +10,7 @@ namespace NotchContactFormTests.Hooks
     [Binding]
     public class Hooks
     {
+        // Scenarios tagged with this will be treated as expected failures in the report
         private const string IntentionalFailTag = "intentional-fail";
 
         private readonly IObjectContainer _container;
@@ -22,13 +23,11 @@ namespace NotchContactFormTests.Hooks
             _scenarioContext = scenarioContext;
         }
 
-
         [BeforeTestRun]
         public static void BeforeTestRun()
         {
             ExtentReportHelper.Instance.InitializeReport();
         }
-
 
         [AfterTestRun]
         public static void AfterTestRun()
@@ -36,7 +35,10 @@ namespace NotchContactFormTests.Hooks
             ExtentReportHelper.Instance.FlushReport();
         }
 
-
+        /// <summary>
+        /// Runs before each scenario. Creates a fresh WebDriver and registers all
+        /// dependencies into the Reqnroll DI container for the current scenario.
+        /// </summary>
         [BeforeScenario]
         public void BeforeScenario()
         {
@@ -52,12 +54,16 @@ namespace NotchContactFormTests.Hooks
             var contactPage = new ContactFormPage(_driverContext.Driver, waitHelper, ConfigReader.BaseUrl);
             _container.RegisterInstanceAs(contactPage);
 
+            // Include scenario tags in the report for easier filtering
             var tags = string.Join(", ", _scenarioContext.ScenarioInfo.Tags);
             var testDescription = string.IsNullOrEmpty(tags) ? null : $"Tags: {tags}";
             ExtentReportHelper.Instance.CreateTest(_scenarioContext.ScenarioInfo.Title, testDescription);
         }
 
-
+        /// <summary>
+        /// Runs after each scenario. Captures a failure screenshot if the scenario errored,
+        /// marks known failures appropriately, then disposes the WebDriver.
+        /// </summary>
         [AfterScenario]
         public void AfterScenario()
         {
@@ -75,7 +81,7 @@ namespace NotchContactFormTests.Hooks
                     if (!string.IsNullOrEmpty(base64))
                         ExtentReportHelper.Instance.AttachScreenshot(base64, $"Screenshot at {screenshotLabel}");
                 }
-                catch { /* screenshot failure must not mask the original error */ }
+                catch { /* screenshot failure must not mask the original test error */ }
 
                 if (isKnownFailure)
                 {
@@ -87,7 +93,7 @@ namespace NotchContactFormTests.Hooks
             _driverContext?.Dispose();
         }
 
-
+        // Logs each step outcome to ExtentReports after it executes
         [AfterStep]
         public void AfterStep()
         {
@@ -100,15 +106,11 @@ namespace NotchContactFormTests.Hooks
                 bool isKnownFailure = _scenarioContext.ScenarioInfo.Tags.Contains(IntentionalFailTag);
 
                 if (isKnownFailure)
-                {
                     ExtentReportHelper.Instance.LogWarning(
                         $"[EXPECTED FAILURE] Step: {stepText}\n{_scenarioContext.TestError?.Message}");
-                }
                 else
-                {
                     ExtentReportHelper.Instance.LogFail(
                         $"Step FAILED: {stepText}\n{_scenarioContext.TestError?.Message}");
-                }
             }
             else
             {
