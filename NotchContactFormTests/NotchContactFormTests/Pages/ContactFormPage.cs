@@ -7,7 +7,6 @@ namespace NotchContactFormTests.Pages
     /// <summary>
     /// Page object for the Notch contact form.
     /// All locators are centralized here — if the form DOM changes, only this file needs updating.
-    /// The form is built on Gravity Forms (WordPress), so field selectors follow the input_N pattern.
     /// </summary>
     public class ContactFormPage : BasePage
     {
@@ -25,23 +24,14 @@ namespace NotchContactFormTests.Pages
         private By SubmitButton => By.CssSelector("input[type='submit'], button[type='submit']");
         private By FileUploadInput => By.CssSelector("input[type='file']");
         private By FileUploadProgress => By.CssSelector(".gfield_fileupload_percent");
-
-        // Chosen.js dropdowns — BudgetDropdown is identified by exclusion to avoid matching HowDidYouHear
         private By HowDidYouHearDropdown => By.CssSelector("#input_7_9_chosen");
         private By BudgetDropdown => By.CssSelector("div.chosen-container.chosen-container-single:not(#input_7_9_chosen)");
-
-        // Confirmation message shown after successful form submission
         private By SuccessMessage => By.XPath("//div[@class='contact-form']//div[@id='gform_confirmation_message_7']");
-
-        // Validation error messages — [1] index guards against duplicate elements in the DOM
         private By FirstNameError => By.XPath("(//*[contains(@id,'validation_message_7_5')])[1]");
         private By LastNameError => By.XPath("(//*[contains(@id,'validation_message_7_18')])[1]");
         private By EmailError => By.XPath("(//*[contains(@id,'validation_message_7_17')])[1]");
         private By ConsentError => By.XPath("(//*[contains(@id,'validation_message_7_16')])[1]");
-
-        // Service checkboxes are matched by their visible label text
-        private By ServiceCheckboxByLabel(string label) =>
-            By.XPath($"//div[@class='gfield_checkbox ']//label[contains(.,'{label}')]");
+        private By ServiceCheckboxByLabel(string label) => By.XPath($"//div[@class='gfield_checkbox ']//label[contains(.,'{label}')]");
 
         #endregion
 
@@ -62,21 +52,12 @@ namespace NotchContactFormTests.Pages
         public void EnterProjectDetails(string value) => TypeInto(ProjectDetailsTextarea, value);
         public void AcceptConsent() => EnsureChecked(ConsentCheckbox);
         public void ClickSendMessage() => ClickOn(SubmitButton);
+        public void SelectHowDidYouHear(string option) =>SelectFromChosenDropdown(HowDidYouHearDropdown, option);
+        public void SelectBudget(string option) => SelectFromChosenDropdown(BudgetDropdown, option);
+        public void SelectService(string serviceLabel) =>ClickOn(ServiceCheckboxByLabel(serviceLabel));
 
-        public void SelectHowDidYouHear(string option) =>
-            SelectFromChosenDropdown(HowDidYouHearDropdown, option);
 
-        public void SelectBudget(string option) =>
-            SelectFromChosenDropdown(BudgetDropdown, option);
 
-        public void SelectService(string serviceLabel) =>
-            ClickOn(ServiceCheckboxByLabel(serviceLabel));
-
-        /// <summary>
-        /// Uploads a file via the hidden file input. The input is made visible via JavaScript
-        /// before sending keys, as Selenium cannot interact with hidden file inputs directly.
-        /// Waits for the upload progress indicator to reach 100% before returning.
-        /// </summary>
         public void UploadFile(string filePath)
         {
             var inputs = Driver.FindElements(FileUploadInput);

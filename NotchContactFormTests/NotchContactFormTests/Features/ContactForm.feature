@@ -48,7 +48,7 @@ Scenario: Successfully submit form with multiple services selected
 	And I click the Send message button
 	Then a success confirmation message 'Thanks for contacting us! We will get in touch with you shortly.' should be displayed
 
-@regression @happy-path @referral-sources
+@regression @happy-path
 Scenario Outline: Submit form with different referral sources
 	When I enter "Test" in the first name field
 	And I enter "User" in the last name field
@@ -67,7 +67,7 @@ Examples:
 	| Facebook       |
 	| Instagram      |
 
-@regression @happy-path @budget-selection
+@regression @happy-path
 Scenario Outline: Submit form with different budget selections
 	When I enter "Budget" in the first name field
 	And I enter "Tester" in the last name field
@@ -89,7 +89,7 @@ Examples:
 
   # VALIDATION — REQUIRED FIELDS
 
-@regression @validation @required-fields
+@regression @validation
 Scenario: Show validation errors when submitting completely empty form
 	When I click the Send message button
 	Then validation error message "This field is required." should be displayed for "first name" field
@@ -97,7 +97,7 @@ Scenario: Show validation errors when submitting completely empty form
 	And validation error message "This field is required." should be displayed for "email" field
 	And validation error message "This field is required." should be displayed for "consent" field
 
-@regression @validation @required-fields
+@regression @validation
 Scenario: Show validation error when first name is missing
 	When I enter "Doe" in the last name field
 	And I enter a generated email in the email field
@@ -105,7 +105,7 @@ Scenario: Show validation error when first name is missing
 	And I click the Send message button
 	Then validation error message "This field is required." should be displayed for "first name" field
 
-@regression @validation @required-fields
+@regression @validation
 Scenario: Show validation error when last name is missing
 	When I enter "John" in the first name field
 	And I enter a generated email in the email field
@@ -113,7 +113,7 @@ Scenario: Show validation error when last name is missing
 	And I click the Send message button
 	Then validation error message "This field is required." should be displayed for "last name" field
 
-@regression @validation @required-fields
+@regression @validation
 Scenario: Show validation error when email is missing
 	When I enter "John" in the first name field
 	And I enter "Doe" in the last name field
@@ -121,7 +121,7 @@ Scenario: Show validation error when email is missing
 	And I click the Send message button
 	Then validation error message "This field is required." should be displayed for "email" field
 
-@regression @validation @required-fields
+@regression @validation
 Scenario: Show validation error when consent is not accepted
 	When I enter "John" in the first name field
 	And I enter "Doe" in the last name field
@@ -132,7 +132,7 @@ Scenario: Show validation error when consent is not accepted
 
   # VALIDATION — EMAIL FORMAT
 
-@regression @validation @email-format
+@regression @validation
 Scenario Outline: Show validation error for invalid email formats
 	When I enter "John" in the first name field
 	And I enter "Doe" in the last name field

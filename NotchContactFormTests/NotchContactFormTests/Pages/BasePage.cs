@@ -63,11 +63,7 @@ namespace NotchContactFormTests.Pages
                 el.Click();
         }
 
-        /// <summary>
-        /// Interacts with a Chosen.js dropdown (custom jQuery select widget).
-        /// Clicks the container to open the list, then selects the matching option by text.
-        /// Handles option text containing single quotes via a positional XPath fallback.
-        /// </summary>
+     
         protected void SelectFromChosenDropdown(By chosenContainerLocator, string optionText)
         {
             var container = Wait.WaitForElementClickable(chosenContainerLocator);

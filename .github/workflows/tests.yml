@@ -17,12 +17,8 @@ on:
           - smoke
           - regression
           - happy-path
-          - referral-sources
-          - budget-selection
-          - validation
-          - required-fields
-          - email-format
           - intentional-fail
+          - validation
 
 jobs:
   test:

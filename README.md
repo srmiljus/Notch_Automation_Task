@@ -230,6 +230,6 @@ The workflow can also be triggered manually from the **Actions** tab on GitHub:
 3. Select the branch and desired tag filter
 4. Click **Run workflow**
 
-Available tag filters: `all`, `smoke`, `regression`, `happy-path`, `referral-sources`, `budget-selection`, `validation`, `required-fields`, `email-format`, `intentional-fail`
+Available tag filters: `all`, `smoke`, `regression`, `happy-path`, `validation`, `intentional-fail`
 
 To run in any CI pipeline, set `"Headless": true` in `appsettings.json` or override via the `BROWSER_HEADLESS` environment variable.
