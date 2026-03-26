@@ -62,7 +62,7 @@ namespace NotchContactFormTests.Hooks
 
         /// <summary>
         /// Runs after each scenario. Captures a failure screenshot if the scenario errored,
-        /// marks known failures appropriately, then disposes the WebDriver.
+        /// marks known failures as fail with explanation, then disposes the WebDriver.
         /// </summary>
         [AfterScenario]
         public void AfterScenario()
@@ -85,8 +85,9 @@ namespace NotchContactFormTests.Hooks
 
                 if (isKnownFailure)
                 {
-                    ExtentReportHelper.Instance.MarkTestAsKnownFailure(
-                        "Assertion uses a deliberately incorrect expected value to demonstrate failure reporting in ExtentReports.");
+                    ExtentReportHelper.Instance.LogFail(
+                        "[EXPECTED FAILURE] This test is intentionally failing to demonstrate failure reporting in ExtentReports. " +
+                        "The assertion uses a deliberately incorrect expected value — this is not a bug in the application.");
                 }
             }
 
@@ -106,7 +107,7 @@ namespace NotchContactFormTests.Hooks
                 bool isKnownFailure = _scenarioContext.ScenarioInfo.Tags.Contains(IntentionalFailTag);
 
                 if (isKnownFailure)
-                    ExtentReportHelper.Instance.LogWarning(
+                    ExtentReportHelper.Instance.LogFail(
                         $"[EXPECTED FAILURE] Step: {stepText}\n{_scenarioContext.TestError?.Message}");
                 else
                     ExtentReportHelper.Instance.LogFail(
