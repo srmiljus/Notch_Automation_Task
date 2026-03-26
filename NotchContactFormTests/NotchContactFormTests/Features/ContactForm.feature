@@ -95,7 +95,7 @@ Scenario: Show validation errors when submitting completely empty form
 	Then validation error message "This field is required." should be displayed for "first name" field
 	And validation error message "This field is required." should be displayed for "last name" field
 	And validation error message "This field is required." should be displayed for "email" field
-	And validation error message "This field is required." should be displayed for "consent" field
+	And validation error message "This field is requireddadafafafada." should be displayed for "consent" field
 
 @regression @validation @required-fields
 Scenario: Show validation error when first name is missing
