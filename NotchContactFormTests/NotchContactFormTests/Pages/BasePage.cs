@@ -48,7 +48,7 @@ namespace NotchContactFormTests.Pages
                 var el = Wait.WaitForElementVisible(locator, timeoutSeconds);
                 return el.Text;
             }
-            catch
+            catch (WebDriverTimeoutException)
             {
                 return string.Empty;
             }
@@ -92,7 +92,7 @@ namespace NotchContactFormTests.Pages
                     By.XPath("//div[@class='cky-consent-container cky-popup-center']"),
                     timeoutSeconds: 5);
             }
-            catch { /* Banner may not be present on every page load — not an error */ }
+            catch (WebDriverTimeoutException) { /* Banner may not be present on every page load — not an error */ }
         }
     }
 }
